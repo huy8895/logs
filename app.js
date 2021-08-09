@@ -5,13 +5,17 @@ const moment = require('moment');
 
 const defaultInputFile = 'AFS-log.json';
 const defaultSkipLine = 5;
-const outputFile = 'out/AFS-new-logs.log';
+const defaultOutputFile = 'out/AFS-new-logs.log';
 const outputFolder = 'out';
 const breakLine = '\r\n';
+const outFileExtension = '.log';
+
+const skipLine = isNullOrUndefine(process.argv[2]) ? defaultSkipLine : process.argv[2];
+const outputFile = isNullOrUndefine(process.argv[3]) ? defaultOutputFile : (outputFolder + '/' + process.argv[3] + outFileExtension);
+const inputFile = isNullOrUndefine(process.argv[4]) ? defaultInputFile : process.argv[4];
 
 const writeStream = fs.createWriteStream(outputFile);
-const skipLine = isNullOrUndefine(process.argv[2]) ? defaultSkipLine : process.argv[2];
-const inputFile = isNullOrUndefine(process.argv[3]) ? defaultInputFile : process.argv[3];
+
 const rl = readline.createInterface({
     input: fs.createReadStream(inputFile),
     crlfDelay: Infinity
@@ -49,15 +53,8 @@ function convertLog(rawLine) {
 }
 
 function toNewFormat(obj){
-    let newLine = [];
-    newLine.push(
-        converDate(obj['@timestamp']),
-        obj['level'],
-        obj['logger_name'],
-        obj['message']
-        )
-    ;
-    return newLine.join(' ');
+    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']} --- ${obj['message']}`;
+    return newLine;
 }
 
 function converDate(toConvert){
