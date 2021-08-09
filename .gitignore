@@ -1,2 +1,4 @@
 node_modules/
 out/
+input/
+.idea/
