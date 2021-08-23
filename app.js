@@ -64,7 +64,7 @@ function convertLog(rawLine,writeStream) {
 }
 
 function toNewFormat(obj){
-    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']} --- ${obj['message']}`;
+    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']} ${obj['thread_name']} --- ${obj['message']}`;
     return newLine;
 }
 
