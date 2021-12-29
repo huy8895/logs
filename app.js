@@ -62,9 +62,10 @@ function convertLog(rawLine,writeStream) {
     let newFormatLine = toNewFormat(parseToObject);
     writeStream.write(newFormatLine + breakLine);
 }
-
+//thread_name
 function toNewFormat(obj){
-    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']} ${obj['thread_name']} --- ${obj['message']}`;
+    let className = String(obj['logger_name']).split(".").slice(-1).pop();
+    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']}  [${obj['thread_name']}] - ${className} ----  ${obj['message:']}`;
     return newLine;
 }
 
