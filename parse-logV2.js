@@ -1,26 +1,38 @@
 const fs = require('fs');
 const readline = require('readline');
-const moment = require('moment');  
+const moment = require('moment');
 const fsExtra = require('fs-extra')
 
 const outputFolder = 'out';
-const inputFolder = 'input';
 const breakLine = '\r\n';
 const outFileExtension = '.log';
 
-createFolderIfNotExist(inputFolder);
 createFolderIfNotExist(outputFolder);
 fsExtra.emptyDirSync(outputFolder)
 
-const listFile = getListFile(inputFolder);
+let inputFolder;
+// const listFile = getListFile(inputFolder);
+let listFile = [];
+
+// lay dia chi thu muc hien tai
+var currentPath = process.cwd();
+console.log("currentPath: " + currentPath);
+
+listFile = getListFile(currentPath)
+
+if (listFile == null || listFile == undefined) {
+    console.log('list file is null or undifine')
+    return;
+}
 
 listFile.forEach(file => {
-    const rl = getReadLine(inputFolder + '/' +file);
+    const rl = getReadLine(file);
+    console.log('getReadLine' + file)
     const outputFile = (outputFolder + '/' + file).replace(/\s+/g, '') + outFileExtension;
     const writeStream = fs.createWriteStream(outputFile);
     rl.on('line', (line) => {
         if (isJson(line)) {
-            convertLog(line,writeStream);
+            convertLog(line, writeStream);
         }
     });
     console.log(`done ! check new log in ${outputFile}`)
@@ -35,10 +47,14 @@ function getReadLine(file) {
         crlfDelay: Infinity
     });
 }
+
 function getListFile(inputFolder) {
     const listFile = [];
     fs.readdirSync(inputFolder).forEach(file => {
-        listFile.push(file)
+        // kiem tra xem file co phai la 1 thu muc khong.
+        if(!fs.lstatSync(file).isDirectory()){
+            listFile.push(file)
+        }
     });
     return listFile;
 }
@@ -50,26 +66,26 @@ function createFolderIfNotExist(folder) {
 }
 
 function deleteAllFileInFolder(folder) {
-    
+
 }
 
 function isNullOrUndefine(toCheck) {
     return toCheck == null || toCheck == undefined;
 }
 
-function convertLog(rawLine,writeStream) {
+function convertLog(rawLine, writeStream) {
     let parseToObject = JSON.parse(rawLine);
     let newFormatLine = toNewFormat(parseToObject);
     writeStream.write(newFormatLine + breakLine);
 }
 //thread_name
-function toNewFormat(obj){
+function toNewFormat(obj) {
     let className = String(obj['logger_name']).split(".").slice(-1).pop();
-    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']}  [${obj['thread_name']}] - ${className} ----  ${obj['message:']}`;
+    let newLine = `${converDate(obj['@timestamp'])} ${obj['level']}  [${obj['thread_name']}] - ${className} ----  ${obj['message']}`;
     return newLine;
 }
 
-function converDate(toConvert){
+function converDate(toConvert) {
     let dt = new Date(Date.parse(toConvert));
     return moment(dt).format('DD-MM-yyyy HH:mm:ss.SSS');
 }

@@ -5,3 +5,8 @@ json log to spring log
 
 cd to project: 
 `node app.js`
+
+v2: `node parse-logV2.js`
+
+powershell: 
+create alias `function plog {node  D:\MB\logs\parse-logV2.js}`
